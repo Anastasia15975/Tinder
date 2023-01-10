@@ -83,7 +83,8 @@ public class RegistrationActivity extends AppCompatActivity {
                                             .getReference()
                                             .child("Users")
                                             .child(radioButton.getText().toString())
-                                            .child(userId);
+                                            .child(userId)
+                                            .child("name");
                                     currentUserDb.setValue(name);
                                 }
                             }
