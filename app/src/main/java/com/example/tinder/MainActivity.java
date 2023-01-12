@@ -18,6 +18,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                         .child("yeps")
                         .child(currentUId)
                         .setValue(true);
+                isConnectionMatch(userId);
                 Toast.makeText(MainActivity.this, "Right!", Toast.LENGTH_SHORT).show();
             }
 
@@ -108,6 +110,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClicked(int itemPosition, Object dataObject) {
                 Toast.makeText(MainActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void isConnectionMatch(String userId) {
+        DatabaseReference currentUserConnectionsDb = usersDb
+                .child(userSex)
+                .child(currentUId)
+                .child("connections")
+                .child("yeps")
+                .child(userId);
+        currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    Toast.makeText(MainActivity.this, "new Connection", Toast.LENGTH_LONG).show();
+                    usersDb
+                            .child(oppositeUserSex)
+                            .child(snapshot.getKey())
+                            .child("connections")
+                            .child("matches")
+                            .child(currentUId)
+                            .setValue(true);
+                    usersDb
+                            .child(userSex)
+                            .child(currentUId)
+                            .child("connections")
+                            .child("matches")
+                            .child(snapshot.getKey())
+                            .setValue(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -191,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void getOppositeSexUsers(){
+    public void getOppositeSexUsers() {
         DatabaseReference oppositeSexDb = FirebaseDatabase
                 .getInstance()
                 .getReference()
@@ -200,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         oppositeSexDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                if(snapshot.exists() &&
+                if (snapshot.exists() &&
                         !snapshot.child("connections").child("nope").hasChild(currentUId) &&
                         !snapshot.child("connections").child("yeps").hasChild(currentUId)) {
                     Cards item = new Cards(snapshot.getKey(), snapshot.child("name").getValue().toString());
