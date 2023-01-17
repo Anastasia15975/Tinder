@@ -241,7 +241,9 @@ public class MainActivity extends AppCompatActivity {
                 if (snapshot.exists() &&
                         !snapshot.child("connections").child("nope").hasChild(currentUId) &&
                         !snapshot.child("connections").child("yeps").hasChild(currentUId)) {
-                    Cards item = new Cards(snapshot.getKey(), snapshot.child("name").getValue().toString());
+                    Cards item = new Cards(snapshot.getKey(),
+                            snapshot.child("name").getValue().toString(),
+                            snapshot.child("profileImageUrl").getValue().toString());
                     rowItems.add(item);
                     arrayAdapter.notifyDataSetChanged();
                 }
