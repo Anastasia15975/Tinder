@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     Toast.makeText(MainActivity.this, "new Connection", Toast.LENGTH_LONG).show();
                     usersDb
                             .child(oppositeUserSex)
@@ -241,9 +241,13 @@ public class MainActivity extends AppCompatActivity {
                 if (snapshot.exists() &&
                         !snapshot.child("connections").child("nope").hasChild(currentUId) &&
                         !snapshot.child("connections").child("yeps").hasChild(currentUId)) {
+                    String profileImageUrl = "default";
+                    if (snapshot.child("profileImageUrl").getValue().equals("default")) {
+                        profileImageUrl = snapshot.child("profileImageUrl").getValue().toString();
+                    }
                     Cards item = new Cards(snapshot.getKey(),
                             snapshot.child("name").getValue().toString(),
-                            snapshot.child("profileImageUrl").getValue().toString());
+                            profileImageUrl);
                     rowItems.add(item);
                     arrayAdapter.notifyDataSetChanged();
                 }
