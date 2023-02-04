@@ -40,9 +40,9 @@ public class SettingsActivity extends AppCompatActivity {
     private ImageView mProfileImage;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mCustomerDatabase;
+    private DatabaseReference mUserCustomerDatabase;
 
-    private String userId, name, phone, profileImageUrl;
+    private String userId, name, phone, profileImageUrl, userSex;
 
     private Uri resultUri;
 
@@ -51,7 +51,6 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        String userSex = getIntent().getExtras().getString("userSex");
         mNameField = findViewById(R.id.name);
         mPhoneField = findViewById(R.id.phone);
 
@@ -62,11 +61,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
-        mCustomerDatabase = FirebaseDatabase
+        mUserCustomerDatabase = FirebaseDatabase
                 .getInstance()
                 .getReference()
                 .child("Users")
-                .child(userSex)
                 .child(userId);
 
         getUserInfo();
@@ -95,7 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void getUserInfo() {
-        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        mUserCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists() && snapshot.getChildrenCount() > 0) {
@@ -107,6 +105,9 @@ public class SettingsActivity extends AppCompatActivity {
                     if (map.get("phone") != null) {
                         phone = map.get("phone").toString();
                         mPhoneField.setText(phone);
+                    }
+                    if (map.get("sex") != null) {
+                        userSex = map.get("sex").toString();
                     }
                     Glide.with(getApplication()).clear(mProfileImage);
                     if (map.get("profileImageUrl") != null) {
@@ -137,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
         Map userInfo = new HashMap();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
-        mCustomerDatabase.updateChildren(userInfo);
+        mUserCustomerDatabase.updateChildren(userInfo);
         if (resultUri != null) {
             StorageReference filepath = FirebaseStorage
                     .getInstance()
@@ -170,7 +171,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     Map userInfo = new HashMap();
                     userInfo.put("profileImageUrl", downloadUrl);
-                    mCustomerDatabase.updateChildren(userInfo);
+                    mUserCustomerDatabase.updateChildren(userInfo);
 
                     finish();
                     return;
